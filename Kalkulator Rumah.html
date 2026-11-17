@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perhitungan Rumahan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{--paper:#f2f6f8;--grid:#d9e5ec;--card:#fbfdfe;--ink:#16307a;--on-ink:#fff;--text:#1c2733;--muted:#66788a;--margin:#d6453d;--line:#bdd0dc;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#101a24;--grid:#1b2a37;--card:#16222d;--ink:#9bb9ff;--on-ink:#0f1a2a;--text:#e3eaf1;--muted:#8fa0b0;--margin:#ff8a80;--line:#2c3e4d}}
+:root[data-theme="dark"]{--paper:#101a24;--grid:#1b2a37;--card:#16222d;--ink:#9bb9ff;--on-ink:#0f1a2a;--text:#e3eaf1;--muted:#8fa0b0;--margin:#ff8a80;--line:#2c3e4d}
+html{scroll-padding-top:env(safe-area-inset-top,0px);color-scheme:light dark}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--text);font:18px/1.5 "Patrick Hand","Segoe Print","Comic Sans MS",cursive,sans-serif;min-height:100vh}
+main{max-width:720px;margin:0 auto;padding:28px 16px 48px}
+h1{font-size:40px;line-height:1.1;margin:0 0 6px;color:var(--ink)}
+header p{margin:0 0 20px;color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-bottom:18px}
+.tabs button{font:inherit;font-size:20px;padding:6px 16px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+:focus-visible{outline:3px solid var(--margin);outline-offset:2px}
+section{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:18px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+label{display:flex;flex-direction:column;font-size:16px;color:var(--muted);gap:2px}
+input,select{font:500 20px "JetBrains Mono",ui-monospace,monospace;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:8px;padding:7px 10px;width:130px}
+select{width:auto;font-size:16px}
+.op{font-size:28px;padding-bottom:4px;color:var(--muted)}
+button.primary{font:inherit;font-size:20px;background:var(--ink);color:var(--on-ink);border:0;border-radius:8px;padding:8px 22px;cursor:pointer}
+button.sec{font:inherit;font-size:16px;background:transparent;color:var(--ink);border:2px solid var(--ink);border-radius:8px;padding:4px 12px;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
+.err{color:var(--margin);margin:10px 0 0;min-height:0}
+.sheet{margin-top:16px;border-left:4px solid var(--margin);background:var(--paper);border-radius:4px;padding:14px 16px;overflow-x:auto}
+pre{margin:0;font:700 24px/1.55 "JetBrains Mono",ui-monospace,monospace;color:var(--ink);white-space:pre}
+pre em{font:500 15px "Patrick Hand",sans-serif;color:var(--margin);font-style:normal}
+.dv{border-top:3px solid var(--ink)}
+.z{font-style:normal;opacity:.35}
+.cm{display:inline-block;width:0;text-indent:-.32em;overflow:visible}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.res{font-size:24px;color:var(--ink);margin:6px 0}
+ol{padding-left:22px;margin:8px 0 0}
+li{margin-bottom:8px}
+li.cur{color:var(--ink);font-weight:700}
+.hint{color:var(--muted);font-size:16px;margin:0 0 12px}
+.sm{color:var(--muted);font-size:16px;font-weight:400}
+li b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:17px;color:var(--ink)}
+.frac{position:relative;width:300px;height:136px;margin:18px auto 8px}
+.frac input{position:absolute;width:96px;height:44px;text-align:center;padding:4px}
+.frac svg{position:absolute;inset:0;pointer-events:none}
+.eq{position:absolute;left:132px;top:50px;width:36px;text-align:center;font-size:30px;line-height:36px;background:var(--card);color:var(--ink)}
+.bar{position:absolute;top:67px;width:96px;height:3px;background:var(--ink)}
+.center{text-align:center}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Perhitungan Rumahan</h1>
+<p>Lihat setiap langkah pembagian bersusun dan perkalian silang, seperti menulis di buku tulis.</p>
+</header>
+
+<div class="tabs" role="tablist">
+<button role="tab" aria-selected="true" data-p="p1">Pembagian bersusun</button>
+<button role="tab" aria-selected="false" data-p="p2">Perkalian silang</button>
+<button role="tab" aria-selected="false" data-p="p3">Kalkulator desimal</button>
+</div>
+
+<section id="p1">
+<div class="row">
+<label>Yang dibagi<input id="a" inputmode="decimal" value="125" autocomplete="off"></label>
+<span class="op">÷</span>
+<label>Pembagi<input id="b" inputmode="decimal" value="4" autocomplete="off"></label>
+<label>Sisa dilanjutkan<select id="dec">
+<option value="0">Tidak, tulis sisa</option><option value="1">1 angka desimal</option><option value="2" selected>2 angka desimal</option><option value="3">3 angka desimal</option><option value="4">4 angka desimal</option><option value="5">5 angka desimal</option>
+</select></label>
+<button class="primary" id="go1">Hitung</button>
+</div>
+<p class="err" id="derr" role="alert"></p>
+<p class="hint" id="dnote" hidden></p>
+<div id="dout" hidden>
+<div class="sheet"><pre id="ws"></pre></div>
+<div class="ctl">
+<button class="sec" id="prev">Langkah sebelumnya</button>
+<button class="sec" id="next">Langkah berikutnya</button>
+<button class="sec" id="all">Tampilkan semua</button>
+</div>
+<p class="res" id="dres"></p>
+<ol id="dsteps"></ol>
+</div>
+</section>
+
+<section id="p2" hidden>
+<p class="hint">Perbandingan a/b = c/d. Kosongkan satu kotak (yang dicari), isi tiga lainnya. Jika keempatnya diisi, kita periksa apakah sebanding.</p>
+<div class="frac">
+<svg viewBox="0 0 300 136" aria-hidden="true"><line x1="102" y1="50" x2="198" y2="86" stroke="var(--margin)" stroke-width="2.5" stroke-dasharray="6 5"/><line x1="198" y1="50" x2="102" y2="86" stroke="var(--margin)" stroke-width="2.5" stroke-dasharray="6 5"/></svg>
+<input id="xa" style="left:6px;top:6px" placeholder="a" aria-label="a" inputmode="decimal" value="2">
+<input id="xb" style="left:6px;top:86px" placeholder="b" aria-label="b" inputmode="decimal" value="5">
+<input id="xc" style="left:198px;top:6px" placeholder="c" aria-label="c" inputmode="decimal" value="6">
+<input id="xd" style="left:198px;top:86px" placeholder="d" aria-label="d" inputmode="decimal" value="">
+<div class="bar" style="left:6px"></div><div class="bar" style="left:198px"></div>
+<div class="eq">=</div>
+</div>
+<div class="center"><button class="primary" id="go2">Hitung</button></div>
+<p class="err" id="cerr" role="alert"></p>
+<div id="cout"></div>
+</section>
+
+<section id="p3" hidden>
+<p class="hint">Ketik langsung dengan keyboard: <b>+</b> <b>-</b> <b>*</b> <b>/</b> <b>^</b> <b>( )</b>. Koma atau titik sama-sama dibaca sebagai koma desimal. Huruf x juga bisa dipakai untuk kali, dan tanda : untuk bagi. Hasil muncul saat mengetik; tekan Enter untuk melihat pesan jika ada yang salah.</p>
+<div class="row">
+<label style="flex:1;min-width:220px">Soal<input id="ex" style="width:100%" value="2,5 * (4 - 1,25) + 0,1 / 0,3" autocomplete="off" spellcheck="false" inputmode="text"></label>
+<button class="primary" id="go3">Hitung</button>
+</div>
+<p class="err" id="eerr" role="alert"></p>
+<div id="eout"></div>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+/* ---------- Tab ---------- */
+document.querySelectorAll('.tabs button').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===t));
+  ['p1','p2','p3'].forEach(p=>$('#'+p).hidden=p!==t.dataset.p);
+  if(t.dataset.p==='p3')$('#ex').focus();
+});
+
+/* ---------- Pembagian bersusun ---------- */
+let D=null, shown=0;
+
+function buildDiv(a,b,maxDec){
+  const ad=a.split('').map(Number), seq=ad.slice(), steps=[];
+  let cur=0, started=false, i=0, dec=0;
+  while(true){
+    if(i>=seq.length){ if(cur!==0&&dec<maxDec){seq.push(0);dec++} else break }
+    const d=seq[i], isDec=i>=ad.length, prev=cur;
+    cur=cur*10+d;
+    if(!started&&!isDec&&cur<b){i++;continue}
+    const first=!started; started=true;
+    const q=Math.floor(cur/b), prod=q*b, rem=cur-prod;
+    steps.push({idx:i,d,prev,cur,q,prod,rem,isDec,first});
+    cur=rem; i++;
+  }
+  return {a,b,ad,seq,steps,dec,rem:cur,intZero:!steps.some(s=>!s.isDec)};
+}
+
+function stepText(s,k){
+  const nx=D.steps[k+1], p=[];
+  if(s.first&&s.isDec) p.push(`Bagian bulat hasilnya 0 karena ${D.a} < ${D.b}. Beri koma di hasil, turunkan 0 → ${s.cur}.`);
+  else if(s.first) p.push(`Ambil ${s.cur}, bagian depan terkecil yang sudah ≥ ${D.b}.`);
+  else p.push(`Sekarang ${s.cur}.`);
+  if(s.q>0) p.push(`${D.b} muat ${s.q} kali, sebab ${s.q} × ${D.b} = ${s.prod}. Tulis ${s.q} di hasil, lalu kurangkan: ${s.cur} − ${s.prod} = ${s.rem}.`);
+  else p.push(`${s.cur} < ${D.b}, jadi tulis 0 di hasil.`);
+  if(nx) p.push(`${nx.isDec&&nx.idx===D.ad.length?'Beri koma di hasil. ':''}Turunkan ${nx.d} di samping ${s.rem}${nx.isDec?' (nol desimal)':''} → ${nx.cur}.`);
+  else p.push(s.rem===0?'Sisa 0, pembagian selesai.':`Berhenti dengan sisa ${s.rem}.`);
+  return p.join(' ');
+}
+
+function drawDiv(){
+  const bl=String(D.b).length, pad=bl+2, n=D.seq.length, W=pad+n, il=D.ad.length;
+  const col=i=>pad+i, vis=D.steps.slice(0,shown);
+  const put=(t,e)=>' '.repeat(Math.max(0,e+1-t.length))+t;
+  // baris hasil
+  const qc=Array(W).fill(' ');
+  if(D.intZero&&(vis.length||!D.steps.length)) qc[col(il-1)]='0';
+  vis.forEach(s=>qc[col(s.idx)]=s.q);
+  const showComma=D.dec>0&&vis.some(s=>s.isDec);
+  const qH=qc.map((c,j)=>c+(showComma&&j===col(il-1)?'<span class="cm">,</span>':'')).join('');
+  // baris yang dibagi
+  const dH=D.seq.map((d,j)=>(j>=il?`<i class="z">${d}</i>`:d)+(D.dec>0&&j===il-1?'<span class="cm">,</span>':'')).join('');
+  const rows=[];
+  vis.forEach((s,k)=>{
+    const e=col(s.idx), L=String(s.cur).length;
+    if(s.q>0){rows.push(put('−'+String(s.prod).padStart(L),e));rows.push(put('─'.repeat(L),e))}
+    const nx=D.steps[k+1];
+    if(nx) rows.push(put(String(nx.cur),col(nx.idx)));
+    else rows.push(put(String(s.rem),e)+'  <em>sisa</em>');
+  });
+  if(!D.steps.length) rows.push(put(String(D.rem),col(il-1))+'  <em>sisa</em>');
+  $('#ws').innerHTML=qH+'\n'+String(D.b).padStart(bl)+' │<span class="dv">'+dH+'</span>\n'+rows.join('\n');
+  // hasil
+  const done=shown>=D.steps.length;
+  const ip=D.steps.filter(s=>!s.isDec).map(s=>s.q).join('')||'0';
+  const dp=D.steps.filter(s=>s.isDec).map(s=>s.q).join('');
+  const r=ip+(dp?','+dp:'');
+  $('#dres').textContent=!done?'':D.rem===0?`Hasil: ${r}`:D.dec===0?`Hasil: ${r} sisa ${D.rem}`:`Hasil: ${r} (berhenti setelah ${D.dec} angka desimal, masih ada sisa ${D.rem})`;
+  $('#dsteps').innerHTML=vis.length?vis.map((s,k)=>`<li class="${k===vis.length-1?'cur':''}">${stepText(s,k)}</li>`).join(''):'<li>Tekan “Langkah berikutnya” untuk mulai.</li>';
+  $('#prev').disabled=shown<=0; $('#next').disabled=shown>=D.steps.length; $('#all').disabled=shown>=D.steps.length;
+}
+
+function runDiv(){
+  const aS=$('#a').value.trim(), bS=$('#b').value.trim(), err=$('#derr');
+  err.textContent='';
+  const ok=/^\d{1,12}([.,]\d{1,6})?$/;
+  $('#dnote').hidden=true;
+  if(!ok.test(aS)||!ok.test(bS)){err.textContent='Isi dengan angka; desimal boleh pakai koma atau titik (misalnya 12,5). Maksimal 12 angka sebelum koma dan 6 angka sesudahnya.';$('#dout').hidden=true;return}
+  const dl=s=>(s.split(/[.,]/)[1]||'').length, k=Math.max(dl(aS),dl(bS));
+  const shiftDec=(s,k)=>{const[i,f='']=s.replace(',','.').split('.');return(i+f.padEnd(k,'0')).replace(/^0+(?=\d)/,'')};
+  const a=shiftDec(aS,k), b=shiftDec(bS,k);
+  if(+b===0){err.textContent='Pembagi tidak boleh nol.';$('#dout').hidden=true;return}
+  if(b.length>9){err.textContent='Pembagi terlalu panjang setelah koma digeser (maksimal 9 angka).';$('#dout').hidden=true;return}
+  if(k>0){$('#dnote').hidden=false;$('#dnote').textContent=`Koma digeser ${k} tempat ke kanan pada kedua bilangan: ${aS} ÷ ${bS} menjadi ${a} ÷ ${b}. Hasilnya sama.`}
+  D=buildDiv(a,+b,+$('#dec').value);
+  shown=D.steps.length; $('#dout').hidden=false; drawDiv();
+}
+$('#go1').onclick=runDiv;
+$('#prev').onclick=()=>{shown=Math.max(0,shown-1);drawDiv()};
+$('#next').onclick=()=>{shown=Math.min(D.steps.length,shown+1);drawDiv()};
+$('#all').onclick=()=>{shown=D.steps.length;drawDiv()};
+['a','b'].forEach(i=>$('#'+i).addEventListener('keydown',e=>{if(e.key==='Enter')runDiv()}));
+
+/* ---------- Perkalian silang ---------- */
+const num=v=>{v=v.trim().replace(',','.');if(v==='')return null;return /^-?\d*\.?\d+$/.test(v)?parseFloat(v):NaN};
+const fmt=n=>String(Number(n.toFixed(6))).replace('.',',');
+
+function runCross(){
+  const L=['a','b','c','d'], v=L.map(k=>num($('#x'+k).value)), err=$('#cerr'), out=$('#cout');
+  err.textContent='';out.innerHTML='';
+  if(v.some(Number.isNaN)){err.textContent='Isi dengan angka saja (desimal pakai koma, misalnya 2,5).';return}
+  const em=v.map((x,i)=>x===null?i:-1).filter(i=>i>=0);
+  if(em.length>1){err.textContent='Isi tiga kotak dan kosongkan satu kotak yang ingin dicari.';return}
+  const li=[];
+  if(em.length===0){
+    const [a,b,c,d]=v, l=a*d, r=b*c;
+    li.push(`Perbandingan: ${fmt(a)}/${fmt(b)} dan ${fmt(c)}/${fmt(d)}.`);
+    li.push(`Kali silang: a × d = ${fmt(a)} × ${fmt(d)} = ${fmt(l)}.`);
+    li.push(`Kali silang: b × c = ${fmt(b)} × ${fmt(c)} = ${fmt(r)}.`);
+    li.push(Math.abs(l-r)<1e-9?`Kedua hasil sama, jadi kedua pecahan sebanding.`:`Kedua hasil berbeda (${fmt(l)} ≠ ${fmt(r)}), jadi kedua pecahan tidak sebanding.`);
+  }else{
+    const u=em[0], n=L.map((k,i)=>i===u?'x':fmt(v[i]));
+    // sisi yang lengkap & pembagi
+    const known=(u===0||u===3)?[1,2]:[0,3];
+    const dv=u===0?3:u===3?0:u===1?2:1;
+    const prod=v[known[0]]*v[known[1]], div=v[dv];
+    if(div===0){err.textContent=`Kotak ${L[dv]} tidak boleh 0 karena x harus dibagi dengannya.`;return}
+    const x=prod/div;
+    li.push(`Tulis perbandingan: ${n[0]}/${n[1]} = ${n[2]}/${n[3]}, dengan x sebagai angka yang dicari.`);
+    li.push(`Kali silang: a × d = b × c, yaitu ${n[0]} × ${n[3]} = ${n[1]} × ${n[2]}.`);
+    li.push(`Hitung sisi yang lengkap: ${L[known[0]]} × ${L[known[1]]} = ${fmt(v[known[0]])} × ${fmt(v[known[1]])} = ${fmt(prod)}.`);
+    li.push(`Sisi satunya adalah x × ${L[dv]} = x × ${fmt(div)}, jadi x × ${fmt(div)} = ${fmt(prod)}.`);
+    li.push(`Bagi kedua sisi dengan ${fmt(div)}: x = ${fmt(prod)} ÷ ${fmt(div)} = ${fmt(x)}.`);
+    const f=v.slice();f[u]=x;
+    li.push(`Periksa: a × d = ${fmt(f[0])} × ${fmt(f[3])} = ${fmt(f[0]*f[3])}, dan b × c = ${fmt(f[1])} × ${fmt(f[2])} = ${fmt(f[1]*f[2])}. Sama, jadi benar.`);
+    out.innerHTML=`<p class="res">x = ${fmt(x)}</p>`;
+  }
+  out.innerHTML+='<ol>'+li.map(t=>`<li>${t}</li>`).join('')+'</ol>';
+}
+$('#go2').onclick=runCross;
+['xa','xb','xc','xd'].forEach(i=>$('#'+i).addEventListener('keydown',e=>{if(e.key==='Enter')runCross()}));
+
+/* ---------- Kalkulator desimal (hitung persis dengan BigInt) ---------- */
+const TEN=10n, pw=k=>TEN**BigInt(k), DP=10, ab=x=>x<0n?-x:x;
+const norm=x=>{let n=x.n,s=x.s;while(s>0&&n%TEN===0n){n/=TEN;s--}return{n,s}};
+const fixed=(n,s)=>{const neg=n<0n;let d=ab(n).toString();if(s>0){d=d.padStart(s+1,'0');d=d.slice(0,-s)+','+d.slice(-s)}return(neg?'−':'')+d};
+const show=x=>{x=norm(x);return fixed(x.n,x.s)};
+const par=x=>x.n<0n?`(${show(x)})`:show(x);
+const scl=(x,s)=>x.n*pw(s-x.s);
+const fx=(x,k)=>{const v=scl(x,k);return v<0n?`(${fixed(v,k)})`:fixed(v,k)};
+const SYM={'+':'+','-':'−','*':'×','/':'÷','^':'^'};
+
+function divide(a,b){
+  if(b.n===0n)throw new Error('Tidak bisa membagi dengan nol.');
+  const N=a.n*pw(b.s+DP), Dn=b.n*pw(a.s);
+  let q=N/Dn; const r=N%Dn;
+  if(ab(r)*2n>=ab(Dn)) q+=((N<0n)!==(Dn<0n))?-1n:1n;
+  return{r:norm({n:q,s:DP}),inexact:r!==0n};
+}
+
+function evalExpr(src){
+  const bad=src.match(/[^0-9.,+\-−–*\/×xX÷:^()\s]/);
+  if(bad)throw new Error(`Karakter “${bad[0]}” tidak bisa dipakai. Gunakan angka dan simbol + - * / ^ ( ).`);
+  const s=src.replace(/\s+/g,'').replace(/[×xX]/g,'*').replace(/[÷:]/g,'/').replace(/[−–]/g,'-').replace(/,/g,'.');
+  if(!s)return null;
+  let p=0;const steps=[];
+  const apply=(o,a,b)=>{
+    let r,h='',inexact=false;
+    if(o==='+'||o==='-'){
+      const k=Math.max(a.s,b.s);
+      if(k>0)h=`Samakan angka di belakang koma: ${fx(a,k)} ${SYM[o]} ${fx(b,k)}`;
+      r=norm({n:o==='+'?scl(a,k)+scl(b,k):scl(a,k)-scl(b,k),s:k});
+    }else if(o==='*'){
+      r=norm({n:a.n*b.n,s:a.s+b.s});
+      if(a.s+b.s>0)h=`Kalikan tanpa koma: ${par({n:a.n,s:0})} × ${par({n:b.n,s:0})} = ${a.n*b.n}. Koma dihitung dari kanan sebanyak ${a.s} + ${b.s} = ${a.s+b.s} angka.`;
+    }else if(o==='/'){
+      const d=divide(a,b);r=d.r;inexact=d.inexact;
+      if(b.s>0){const sh=a.s>=b.s?{n:a.n,s:a.s-b.s}:{n:a.n*pw(b.s-a.s),s:0};h=`Geser koma ${b.s} tempat ke kanan agar pembagi bulat: ${show(sh)} ÷ ${b.n}.`}
+      if(inexact)h+=` Hasil dibulatkan sampai ${DP} angka desimal.`;
+    }else{
+      if(b.s!==0||ab(b.n)>100n)throw new Error('Pangkat harus bilangan bulat antara −100 dan 100.');
+      const e=Number(ab(b.n)),v={n:a.n**BigInt(e),s:a.s*e};
+      if(b.n<0n){const d=divide({n:1n,s:0},v);r=d.r;inexact=d.inexact}else r=norm(v);
+      h=`Pangkat berarti kali berulang: ${par(a)} dikalikan sebanyak ${e} kali.`;
+    }
+    steps.push({t:`${par(a)} ${SYM[o]} ${par(b)} = ${show(r)}${inexact?' (dibulatkan)':''}`,h:h.trim()});
+    return r;
+  };
+  const peek=()=>s[p];
+  const expr=()=>{let v=term();while(peek()==='+'||peek()==='-'){const o=s[p++];v=apply(o,v,term())}return v};
+  const term=()=>{let v=unary();while(peek()==='*'||peek()==='/'){const o=s[p++];v=apply(o,v,unary())}return v};
+  const unary=()=>{if(peek()==='-'){p++;const v=unary();return{n:-v.n,s:v.s}}if(peek()==='+'){p++;return unary()}return pow()};
+  const pow=()=>{const b=atom();if(peek()==='^'){p++;return apply('^',b,unary())}return b};
+  const atom=()=>{
+    if(peek()==='('){p++;const v=expr();if(peek()!==')')throw new Error('Tanda kurung buka “(” belum punya pasangan “)”.');p++;return v}
+    const m=/^(\d+\.?\d*|\.\d+)/.exec(s.slice(p));
+    if(!m)throw new Error(s.length<=p?'Soalnya belum lengkap, ada angka yang kurang di akhir.':`Ada yang janggal di dekat “${s.slice(p,p+6)}”. Periksa tanda operasi dan kurung.`);
+    p+=m[0].length;
+    const [i,f='']=m[0].split('.');
+    return norm({n:BigInt(i+f||'0'),s:f.length});
+  };
+  const v=expr();
+  if(p<s.length)throw new Error(s[p]===')'?'Ada kurung tutup “)” yang berlebih.':`Ada yang janggal di dekat “${s.slice(p,p+6)}”. Periksa tanda operasi dan kurung.`);
+  return{v,steps,disp:s.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−').replace(/\./g,',')};
+}
+
+function runCalc(silent){
+  const out=$('#eout'),err=$('#eerr');err.textContent='';
+  try{
+    const r=evalExpr($('#ex').value);
+    if(!r){out.innerHTML='';return}
+    out.innerHTML=`<p class="hint">Dibaca sebagai: ${r.disp}</p><p class="res">= ${show(r.v)}</p>`+(r.steps.length?'<p class="hint">Urutan pengerjaan: kurung dulu, lalu pangkat, kali dan bagi, terakhir tambah dan kurang.</p><ol>'+r.steps.map(x=>`<li><b>${x.t}</b>${x.h?`<br><span class="sm">${x.h}</span>`:''}</li>`).join('')+'</ol>':'');
+  }catch(e){out.innerHTML='';if(!silent)err.textContent=e.message}
+}
+$('#go3').onclick=()=>runCalc(false);
+$('#ex').addEventListener('input',()=>runCalc(true));
+$('#ex').addEventListener('keydown',e=>{if(e.key==='Enter')runCalc(false)});
+
+runDiv(); runCross(); runCalc(true);
+</script>
+</body>
+</html>
